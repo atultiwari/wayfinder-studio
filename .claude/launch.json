@@ -2,6 +2,12 @@
   "version": "0.0.1",
   "configurations": [
     {
+      "name": "editor",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--workspace", "@wayfinder/editor", "run", "dev", "--", "--port", "5210", "--strictPort"],
+      "port": 5210
+    },
+    {
       "name": "viewer",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["--workspace", "@wayfinder/viewer", "run", "dev", "--", "--port", "5200", "--strictPort"],
