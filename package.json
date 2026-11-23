@@ -1,0 +1,17 @@
+{
+  "name": "wayfinder-studio",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Authoring tool that publishes ready-to-host wayfinding map webapps.",
+  "workspaces": [
+    "packages/*",
+    "apps/*",
+    "tools/*"
+  ],
+  "scripts": {
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "check": "npm run check --workspaces --if-present"
+  }
+}

@@ -3,30 +3,41 @@
 Read this first in every session (after CLAUDE.md). Updated at every checkpoint.
 
 ## Current stage
-**Stage 0 — Decide.** Architecture, output shape and MVP scope are open.
+**Stage 1 — Schema DONE** (awaiting checkpoint). Architecture A locked; MVP scope confirmed.
+Next: Stage 2 (viewer).
+
+## Decisions locked
+- **Architecture A** — fully client-side; **Publish = export a self-contained `index.html`** you
+  host anywhere (Netlify drop / GitHub Pages / any static host). No backend. (Owner chose, 2026-11-24.)
+- **Output shape:** self-contained single HTML (data + map image inlined) — the youthfest shape.
+- **Publish is pluggable:** the download target is the MVP; Netlify/GitHub one-click (Arch B) can be
+  added later without rework.
+- **Model:** Editor + Viewer sharing one JSON schema (see docs/ARCHITECTURE.md).
 
 ## Done
-- Project created, git initialised.
-- CLAUDE.md (charter), docs/ARCHITECTURE.md (options + recommendation), this file, starter-prompt.md.
+- Project created, git initialised. CLAUDE.md, docs/ARCHITECTURE.md, this file, starter-prompt.md, README.
+- **Stage 1 — `packages/schema`**: npm-workspaces monorepo + `@wayfinder/schema` (Zod schema,
+  inferred TypeScript types, `parseProject`/`safeParseProject`, `lint()` soft-warnings, and a valid
+  `sampleProject`). `npm run check` green (typecheck + 9 tests). Covers venue, places, paths
+  (nodes/edges graph), stalls, buildings, labels, theme, qr — with referential-integrity validation.
 
-## The decision on the table
-We are building a wayfinding-map **authoring tool** that produces a ready-to-host map webapp
-(youthfest-style). Core model = **Editor + Viewer sharing one JSON schema**; Publish = a pure
-function that assembles a self-contained `index.html`.
+## Recommended defaults (adjust at the checkpoint if wanted)
+- **Viewer stack:** tiny vanilla TypeScript (keeps the published output small & dependency-free).
+- **Editor stack:** React + Vite (richer editing UI; not shipped to end users). *Decide for real at Stage 4.*
+- **Monorepo tooling:** npm workspaces.
+- **Name:** `wayfinder-studio` (rename if preferred).
 
-**Recommended:** Architecture **A** (fully client-side; Publish = export a self-contained HTML you
-host anywhere), output shape = **self-contained single HTML**, with Publish built behind a pluggable
-interface so one-click Netlify/GitHub deploy (**B**) can be added later. See docs/ARCHITECTURE.md.
+## MVP scope (proposed — confirm to start Stage 1)
+The smallest slice that proves the whole loop end-to-end:
+**load a venue image → drop a few places → draw a path between them → Publish → a downloaded,
+self-contained `index.html` that renders the map and routes between places.**
+(Stalls, QR, the animated walker, zoom, search come after the loop works.)
 
-## Open questions for the owner (Stage-0 checkpoint)
-1. **Architecture:** A (client-side + export/download) ✓ recommended · B (+ one-click deploy) ·
-   C (full SaaS with backend). Which do we target for the MVP?
-2. **Output shape:** self-contained single HTML (recommended) · static shell + `data.json` · runtime API.
-3. **Editor stack:** vanilla TS · React · Svelte (owner preference?).
-4. **MVP scope:** smallest useful slice to prove the loop end-to-end? Proposed: load a venue image →
-   drop a few places → draw a path → **Publish → self-contained HTML that routes between places**.
-5. **Name:** is `wayfinder-studio` fine, or prefer another?
+## Open questions for the owner (Stage-1 checkpoint)
+1. Go on to **Stage 2 — the viewer**: a tiny vanilla-TS renderer that takes a `Project` and draws
+   the map + places + a tappable route between them (the youthfest-style output, driven by the schema)?
+2. (Still deferred to Stage 4) Editor stack — React (recommended) or vanilla/Svelte?
 
 ## Next step
-On the owner's answers: Stage 1 — define `packages/schema` (types + Zod + a sample project), then
-Stage 2 (viewer). Nothing is built until Stage 0 is confirmed.
+On confirmation: **Stage 2 — `packages/viewer`** renders `sampleProject` into an interactive map
+(image + place markers + shortest-path route on tap). Then Stage 3 (generator → self-contained HTML).

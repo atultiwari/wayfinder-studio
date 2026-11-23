@@ -26,17 +26,16 @@ Two programs that share one JSON schema:
 assembly, which runs in the browser and can be handed to the user as a download. A backend is only
 needed for *one-click hosting*, *cloud projects*, or *live post-publish edits* — all optional.
 
-## Current architecture decision (OPEN — see STATUS.md)
+## Architecture (LOCKED — see STATUS.md)
 
-Recommended starting point:
 - **Two apps + one schema.**
-- **Architecture A** (fully client-side; Publish exports a self-contained `index.html`), with the
-  Publish step built behind a pluggable interface so **B** (one-click Netlify/GitHub deploy) can be
+- **Architecture A** (chosen) — fully client-side; **Publish exports a self-contained `index.html`**,
+  with the Publish step behind a pluggable interface so **B** (one-click Netlify/GitHub deploy) can be
   added later.
-- **Viewer** = tiny vanilla-TS renderer (youthfest-style). **Editor** = richer SPA.
+- Output shape = **self-contained single HTML** (data + image inlined).
+- **Viewer** = tiny vanilla-TS renderer (youthfest-style). **Editor** = richer SPA (stack decided at Stage 4).
 
-Do not start building the editor/viewer until the architecture (A / B / C) and the first scope are
-confirmed at the Stage-0 checkpoint.
+Do not start building until the MVP **scope** is confirmed at the Stage-0 checkpoint (see STATUS.md).
 
 ## How we work: stages with checkpoints
 
