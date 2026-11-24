@@ -1,28 +1,28 @@
 import { ProjectSchema, type Project } from "./schema";
 
-// A clean, hand-drawn demo venue (self-contained SVG data URI): lawns, two walkways that match
-// the path graph, a few pavilions/buildings, trees, a title and a north arrow. The coloured place
-// pins + routing are drawn on top by the viewer.
+// A clean, hand-drawn demo venue (self-contained SVG data URI). The walkways are drawn to match the
+// winding path graph exactly, so routes bend the way real paths do. Coloured place pins + the route
+// are drawn on top by the viewer.
+const WALK = "M600 720 L470 650 L640 585 L470 520 L660 460 L500 400 L680 360 L560 290 L640 220 M500 400 L330 430 M470 650 L350 640 M680 360 L820 330";
 const SAMPLE_IMAGE =
   "data:image/svg+xml;utf8," +
   "<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='800' font-family='Inter, Segoe UI, sans-serif'>" +
   "<rect width='1200' height='800' fill='%23EEF2F6'/>" +
   "<g fill='%23DBEAD3'>" +
-  "<rect x='70' y='120' width='430' height='250' rx='18'/><rect x='700' y='120' width='430' height='250' rx='18'/>" +
-  "<rect x='70' y='440' width='360' height='290' rx='18'/><rect x='770' y='440' width='360' height='290' rx='18'/></g>" +
-  "<g stroke='%23CAD3DD' stroke-width='40' stroke-linecap='round'><path d='M600 740 V170' fill='none'/><path d='M310 400 H890' fill='none'/></g>" +
-  "<g stroke='%23F7FAFC' stroke-width='28' stroke-linecap='round'><path d='M600 740 V170' fill='none'/><path d='M310 400 H890' fill='none'/></g>" +
+  "<rect x='60' y='95' width='340' height='150' rx='18'/><rect x='820' y='95' width='320' height='150' rx='18'/>" +
+  "<rect x='60' y='635' width='320' height='135' rx='18'/><rect x='840' y='620' width='300' height='150' rx='18'/></g>" +
+  `<path d='${WALK}' fill='none' stroke='%23CAD3DD' stroke-width='36' stroke-linecap='round' stroke-linejoin='round'/>` +
+  `<path d='${WALK}' fill='none' stroke='%23F7FAFC' stroke-width='24' stroke-linecap='round' stroke-linejoin='round'/>` +
   "<g fill='%23E7E1D3' stroke='%23D6CDB8' stroke-width='2'>" +
-  "<rect x='205' y='235' width='200' height='130' rx='12'/><rect x='795' y='235' width='200' height='130' rx='12'/>" +
-  "<rect x='505' y='95' width='190' height='120' rx='12'/></g>" +
-  "<rect x='818' y='250' width='154' height='52' rx='8' fill='%23C9CEDA'/>" +
-  "<g fill='%23E2E6EC'><rect x='110' y='470' width='150' height='90' rx='10'/><rect x='940' y='470' width='150' height='90' rx='10'/>" +
-  "<rect x='372' y='512' width='86' height='66' rx='10'/></g>" +
-  "<g fill='%23BEDAB0'><circle cx='140' cy='165' r='14'/><circle cx='470' cy='150' r='12'/><circle cx='745' cy='150' r='13'/>" +
-  "<circle cx='1075' cy='170' r='14'/><circle cx='150' cy='690' r='15'/><circle cx='1055' cy='690' r='14'/><circle cx='470' cy='700' r='12'/></g>" +
+  "<rect x='220' y='320' width='150' height='120' rx='12'/><rect x='865' y='245' width='150' height='120' rx='12'/>" +
+  "<rect x='585' y='100' width='150' height='95' rx='12'/></g>" +
+  "<rect x='888' y='262' width='104' height='46' rx='8' fill='%23C9CEDA'/>" +
+  "<g fill='%23E2E6EC'><rect x='90' y='660' width='150' height='82' rx='10'/><rect x='980' y='645' width='150' height='82' rx='10'/>" +
+  "<rect x='258' y='568' width='86' height='64' rx='10'/></g>" +
+  "<g fill='%23BEDAB0'><circle cx='120' cy='300' r='14'/><circle cx='760' cy='140' r='13'/><circle cx='1090' cy='300' r='14'/>" +
+  "<circle cx='150' cy='470' r='12'/><circle cx='1060' cy='470' r='13'/><circle cx='430' cy='720' r='12'/><circle cx='720' cy='690' r='14'/></g>" +
   "<g fill='%238A93A6' font-size='15' font-weight='600' text-anchor='middle'>" +
-  "<text x='185' y='522'>Parking</text><text x='1015' y='522'>Restrooms</text>" +
-  "<text x='260' y='640'>Lawn</text><text x='950' y='640'>Lawn</text></g>" +
+  "<text x='165' y='706'>Parking</text><text x='1055' y='691'>Restrooms</text></g>" +
   "<text x='40' y='56' font-size='30' font-weight='800' fill='%230B1E4F'>Green Park Fair</text>" +
   "<text x='41' y='80' font-size='14' fill='%235B6476'>A demo venue — made with Wayfinder Studio</text>" +
   "<g transform='translate(1120,72)'><circle r='24' fill='%23FFFFFF' stroke='%23CBD5E1' stroke-width='2'/>" +
@@ -31,7 +31,7 @@ const SAMPLE_IMAGE =
 
 /**
  * A clean, realistic example: Main Gate (start) + Food Court, Main Stage, Art & Craft and Info Desk,
- * on a 6-node walkway graph, with a few stalls. All places are attached to nodes and lint-clean.
+ * on a winding, branching walkway graph (so routes zig-zag like real paths), with a few stalls.
  */
 export const sampleProject: Project = ProjectSchema.parse({
   version: 1,
@@ -39,34 +39,36 @@ export const sampleProject: Project = ProjectSchema.parse({
   name: "Green Park Fair",
   venue: { name: "Green Park Fair", image: SAMPLE_IMAGE, width: 1200, height: 800 },
   places: [
-    { id: "entrance", name: "Main Gate", role: "start", x: 600, y: 735, nodeId: "g", color: "#E11D48", icon: "entry" },
-    { id: "food", name: "Food Court", x: 300, y: 300, nodeId: "w", color: "#EA580C", icon: "food" },
-    { id: "stage", name: "Main Stage", x: 900, y: 300, nodeId: "e", color: "#4338CA", icon: "mainstage" },
-    { id: "art", name: "Art & Craft", x: 600, y: 165, nodeId: "n", color: "#0891B2", icon: "art" },
-    { id: "info", name: "Info Desk", x: 415, y: 545, nodeId: "m", color: "#16A34A", icon: "info" },
+    { id: "entrance", name: "Main Gate", role: "start", x: 600, y: 758, nodeId: "g", color: "#E11D48", icon: "entry" },
+    { id: "food", name: "Food Court", x: 285, y: 380, nodeId: "fw", color: "#EA580C", icon: "food" },
+    { id: "stage", name: "Main Stage", x: 930, y: 300, nodeId: "es", color: "#4338CA", icon: "mainstage" },
+    { id: "art", name: "Art & Craft", x: 660, y: 150, nodeId: "n8", color: "#0891B2", icon: "art" },
+    { id: "info", name: "Info Desk", x: 300, y: 600, nodeId: "iw", color: "#16A34A", icon: "info" },
   ],
   paths: {
     nodes: [
-      { id: "g", x: 600, y: 690 },
-      { id: "m", x: 600, y: 545 },
-      { id: "c", x: 600, y: 400 },
-      { id: "w", x: 330, y: 400 },
-      { id: "e", x: 870, y: 400 },
-      { id: "n", x: 600, y: 210 },
+      { id: "g", x: 600, y: 720 },
+      { id: "n1", x: 470, y: 650 },
+      { id: "n2", x: 640, y: 585 },
+      { id: "n3", x: 470, y: 520 },
+      { id: "n4", x: 660, y: 460 },
+      { id: "n5", x: 500, y: 400 },
+      { id: "n6", x: 680, y: 360 },
+      { id: "n7", x: 560, y: 290 },
+      { id: "n8", x: 640, y: 220 },
+      { id: "fw", x: 330, y: 430 },
+      { id: "iw", x: 350, y: 640 },
+      { id: "es", x: 820, y: 330 },
     ],
     edges: [
-      ["g", "m"],
-      ["m", "c"],
-      ["c", "w"],
-      ["c", "e"],
-      ["c", "n"],
+      ["g", "n1"], ["n1", "n2"], ["n2", "n3"], ["n3", "n4"], ["n4", "n5"],
+      ["n5", "n6"], ["n6", "n7"], ["n7", "n8"], ["n5", "fw"], ["n1", "iw"], ["n6", "es"],
     ],
     roadNames: {
-      "g-m": "the main path",
-      "m-c": "the main path",
-      "c-w": "the west walk",
-      "c-e": "the east walk",
-      "c-n": "the garden walk",
+      "g-n1": "the main path", "n1-n2": "the main path", "n2-n3": "the main path",
+      "n3-n4": "the main path", "n4-n5": "the main path", "n5-n6": "the main path",
+      "n6-n7": "the main path", "n7-n8": "the garden path",
+      "n5-fw": "the food lane", "n1-iw": "the info lane", "n6-es": "the stage lane",
     },
   },
   stalls: [
