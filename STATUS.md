@@ -3,8 +3,8 @@
 Read this first in every session (after CLAUDE.md). Updated at every checkpoint.
 
 ## Current stage
-**Stage 4 — Editor DONE — the full authoring→publish loop works** (awaiting checkpoint).
-The MVP is complete end to end. Next: enhancements / Stage 5 (one-click deploy) / polish.
+**Richer viewer DONE** (awaiting checkpoint). MVP + richer output complete.
+Next: stalls/QR-images/pan-zoom · Stage 5 (one-click deploy) · polish · or wrap.
 
 ## Decisions locked
 - **Architecture A** — fully client-side; **Publish = export a self-contained `index.html`** you
@@ -40,6 +40,13 @@ The MVP is complete end to end. Next: enhancements / Stage 5 (one-click deploy) 
   live lint warning, "Attach to nearest" cleared it → "Ready to publish". Full workspace check green.
   (Note: `Preview`/`Publish` trigger real downloads/`window.open(blob)`; the in-app browser pane
   doesn't surface those, but the identical generator path is proven in Stage 3.)
+- **Richer viewer** (upgrades the published output): animated walker with progressive route reveal +
+  camera framing (`camera.ts`, `walker.ts`), turn-by-turn `directions()` with a steps panel (uses
+  `paths.roadNames`), a place **search** box, and **hash deep-links** — `#<place>` routes there,
+  `#at-<place>` sets "you are here" (QR standees). Viewer lib rebuilt (12.6 KB). Verified in-browser:
+  animated route to Main Stage, steps "Start → Head along the main path → Turn right onto the east
+  path → Arrive", search, and `#at-cafe` → "You are here: Cafe". 24 tests green; the editor's Publish
+  now emits these automatically.
 
 ## Recommended defaults (adjust at the checkpoint if wanted)
 - **Viewer stack:** tiny vanilla TypeScript (keeps the published output small & dependency-free).
@@ -53,14 +60,13 @@ The smallest slice that proves the whole loop end-to-end:
 self-contained `index.html` that renders the map and routes between places.**
 (Stalls, QR, the animated walker, zoom, search come after the loop works.)
 
-## Open questions for the owner (Stage-4 checkpoint)
-The MVP is complete: author a map in the editor → Publish → a self-contained, host-anywhere HTML.
-Where next?
-1. **Richer output** — port more of the youthfest-style viewer: stalls + directory, QR standees
-   (`#at-<place>`), the animated walker + turn-by-turn, zoom/search.
-2. **Editor polish** — undo/redo, multi-select, building/label tools, drag-to-pan/zoom, nicer markers/icons.
-3. **Stage 5 — one-click deploy** (Architecture B): publish straight to Netlify/GitHub Pages and get a URL.
-4. **Wrap here** — treat the MVP as the milestone and write a short REPORT/README.
+## Open questions for the owner (checkpoint)
+MVP + richer viewer are done (animated walk, directions, search, QR hash). Where next?
+1. **Stalls + QR** — author stalls per place in the editor; render a stall directory + detail in the
+   viewer; generate real QR-code images for the `#at-<place>` standees.
+2. **Editor polish** — undo/redo, building/label tools, drag-to-pan/zoom, nicer icons.
+3. **Stage 5 — one-click deploy** (Architecture B): publish straight to Netlify/GitHub Pages → a URL.
+4. **Wrap here** — treat this as the milestone and write a short README/report.
 
 ## Next step
 Owner's call on the direction above. (A build note: `apps/editor` inlines the viewer via `?raw` from

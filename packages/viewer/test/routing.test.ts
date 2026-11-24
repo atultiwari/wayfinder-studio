@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { sampleProject, type Paths } from "@wayfinder/schema";
-import { shortestPath, routePoints, startPlace } from "../src/routing";
+import { shortestPath, routePoints, startPlace, directions } from "../src/routing";
 
 const paths: Paths = sampleProject.paths;
 
@@ -41,5 +41,22 @@ describe("routePoints", () => {
 describe("startPlace", () => {
   it("finds the start", () => {
     expect(startPlace(sampleProject)?.id).toBe("entrance");
+  });
+});
+
+describe("directions", () => {
+  it("generates start → head → turn → arrive with road names", () => {
+    const steps = directions(sampleProject, "entrance", "stage").map((s) => `${s.kind}:${s.text}`);
+    expect(steps).toEqual([
+      "start:Start at Main Entrance",
+      "straight:Head along the main path",
+      "right:Turn right onto the east path",
+      "arrive:Arrive at Main Stage",
+    ]);
+  });
+  it("turns the other way toward the cafe", () => {
+    const steps = directions(sampleProject, "entrance", "cafe");
+    expect(steps.find((s) => s.kind === "left")?.text).toBe("Turn left onto the west path");
+    expect(steps.at(-1)).toEqual({ kind: "arrive", text: "Arrive at Cafe" });
   });
 });

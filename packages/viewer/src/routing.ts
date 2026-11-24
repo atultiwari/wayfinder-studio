@@ -5,6 +5,11 @@ export interface Point {
   y: number;
 }
 
+export interface Step {
+  kind: "start" | "left" | "right" | "straight" | "arrive";
+  text: string;
+}
+
 /** Dijkstra over the path graph by euclidean edge weight. Returns [] if unreachable. */
 export function shortestPath(paths: Paths, from: string, to: string): string[] {
   const nodes = new Map(paths.nodes.map((n) => [n.id, n] as const));
@@ -85,8 +90,42 @@ export function routePoints(project: Project, fromId: string, toId: string): Poi
       return dedupe([{ x: a.x, y: a.y }, ...mid, { x: b.x, y: b.y }]);
     }
   }
-  // Fallback: straight line between the two places.
   return [{ x: a.x, y: a.y }, { x: b.x, y: b.y }];
+}
+
+/** Turn-by-turn steps generated from the node path geometry + optional road names. */
+export function directions(project: Project, fromId: string, toId: string): Step[] {
+  const byId = new Map(project.places.map((p) => [p.id, p] as const));
+  const a = byId.get(fromId);
+  const b = byId.get(toId);
+  if (!a || !b) return [];
+
+  const roadName = (x: string, y: string): string | undefined =>
+    project.paths.roadNames?.[`${x}-${y}`] ?? project.paths.roadNames?.[`${y}-${x}`];
+
+  const steps: Step[] = [{ kind: "start", text: `Start at ${a.name}` }];
+
+  if (a.nodeId && b.nodeId) {
+    const path = shortestPath(project.paths, a.nodeId, b.nodeId);
+    const nmap = new Map(project.paths.nodes.map((n) => [n.id, n] as const));
+    if (path.length >= 2) {
+      const rn = roadName(path[0], path[1]);
+      steps.push({ kind: "straight", text: rn ? `Head along ${rn}` : "Head toward your destination" });
+    }
+    for (let i = 1; i < path.length - 1; i++) {
+      const prev = nmap.get(path[i - 1])!, cur = nmap.get(path[i])!, next = nmap.get(path[i + 1])!;
+      const ux = cur.x - prev.x, uy = cur.y - prev.y, vx = next.x - cur.x, vy = next.y - cur.y;
+      const mag = Math.hypot(ux, uy) * Math.hypot(vx, vy) || 1;
+      const cross = (ux * vy - uy * vx) / mag;
+      if (Math.abs(cross) < 0.5) continue; // essentially straight
+      const dir = cross > 0 ? "right" : "left";
+      const rn = roadName(path[i], path[i + 1]);
+      steps.push({ kind: dir, text: `Turn ${dir}${rn ? ` onto ${rn}` : ""}` });
+    }
+  }
+
+  steps.push({ kind: "arrive", text: `Arrive at ${b.name}` });
+  return steps;
 }
 
 function dedupe(points: Point[]): Point[] {
