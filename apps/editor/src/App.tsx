@@ -4,6 +4,7 @@ import { Toolbar } from "./components/Toolbar";
 import { Canvas } from "./components/Canvas";
 import { Inspector } from "./components/Inspector";
 import { CheckPanel } from "./components/CheckPanel";
+import { QrPanel } from "./components/QrPanel";
 
 export function App() {
   const deleteSelected = useEditor((s) => s.deleteSelected);
@@ -28,6 +29,7 @@ export function App() {
         <aside className="wf-side">
           <Inspector />
           <CheckPanel />
+          <QrPanel />
         </aside>
       </main>
     </div>

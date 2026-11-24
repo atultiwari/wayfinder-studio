@@ -1,4 +1,5 @@
 import { useEditor } from "../store";
+import { StallList } from "./StallList";
 
 export function Inspector() {
   const project = useEditor((s) => s.project);
@@ -44,6 +45,7 @@ export function Inspector() {
         <button onClick={() => attachToNearestNode(place.id)} disabled={project.paths.nodes.length === 0}>Attach to nearest</button>
       </div>
       <button className="danger" onClick={deleteSelected}>Delete place</button>
+      <StallList placeId={place.id} />
     </section>
   );
 }

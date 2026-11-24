@@ -31,6 +31,11 @@ export const sampleProject: Project = ProjectSchema.parse({
     ],
     roadNames: { "E-J": "the main path", "J-L": "the west path", "J-R": "the east path" },
   },
+  stalls: [
+    { id: "s1", placeId: "cafe", label: "1", name: "Espresso Bar", tagline: "Coffee & fresh pastries", owner: "Priya" },
+    { id: "s2", placeId: "cafe", label: "2", name: "Chaat Corner", tagline: "Street snacks" },
+    { id: "s3", placeId: "stage", label: "A", name: "Merch Booth", position: "Stage left" },
+  ],
   theme: { head: "#0B1E4F", accent: "#F58A14", scheme: "auto" },
   qr: { baseUrl: "https://example.com/map/", perPlace: true },
 });

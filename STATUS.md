@@ -3,8 +3,8 @@
 Read this first in every session (after CLAUDE.md). Updated at every checkpoint.
 
 ## Current stage
-**Richer viewer DONE** (awaiting checkpoint). MVP + richer output complete.
-Next: stalls/QR-images/pan-zoom · Stage 5 (one-click deploy) · polish · or wrap.
+**Stalls + QR DONE** (awaiting checkpoint). MVP + richer output + stalls/QR complete.
+Next: Stage 5 (one-click deploy) · editor polish (undo/pan-zoom/building-label tools) · or wrap.
 
 ## Decisions locked
 - **Architecture A** — fully client-side; **Publish = export a self-contained `index.html`** you
@@ -40,6 +40,13 @@ Next: stalls/QR-images/pan-zoom · Stage 5 (one-click deploy) · polish · or wr
   live lint warning, "Attach to nearest" cleared it → "Ready to publish". Full workspace check green.
   (Note: `Preview`/`Publish` trigger real downloads/`window.open(blob)`; the in-app browser pane
   doesn't surface those, but the identical generator path is proven in Stage 3.)
+- **Stalls + QR**: editor authors stalls per place (Inspector "Stalls" section — add/edit/delete,
+  wired into `project.stalls`); the viewer shows a **stall directory** per place with tap-to-expand
+  detail and includes stalls in **search**; a **QR standees** panel generates a real QR per place
+  (`qrcode-generator`) encoding `${qr.baseUrl}#at-<id>`, each downloadable as SVG. Sample gained 3
+  stalls. Fixed a Zustand infinite-loop (selector returned a fresh filtered array → select the stable
+  array and filter in the body). Verified in-browser (directory "Cafe — 2 stalls", detail "By Priya",
+  search "espresso", 3 QR codes). 24 tests green.
 - **Richer viewer** (upgrades the published output): animated walker with progressive route reveal +
   camera framing (`camera.ts`, `walker.ts`), turn-by-turn `directions()` with a steps panel (uses
   `paths.roadNames`), a place **search** box, and **hash deep-links** — `#<place>` routes there,
@@ -61,12 +68,10 @@ self-contained `index.html` that renders the map and routes between places.**
 (Stalls, QR, the animated walker, zoom, search come after the loop works.)
 
 ## Open questions for the owner (checkpoint)
-MVP + richer viewer are done (animated walk, directions, search, QR hash). Where next?
-1. **Stalls + QR** — author stalls per place in the editor; render a stall directory + detail in the
-   viewer; generate real QR-code images for the `#at-<place>` standees.
-2. **Editor polish** — undo/redo, building/label tools, drag-to-pan/zoom, nicer icons.
-3. **Stage 5 — one-click deploy** (Architecture B): publish straight to Netlify/GitHub Pages → a URL.
-4. **Wrap here** — treat this as the milestone and write a short README/report.
+MVP + richer viewer + stalls/QR are all done. Where next?
+1. **Stage 5 — one-click deploy** (Architecture B): publish straight to Netlify/GitHub Pages → a live URL.
+2. **Editor polish** — undo/redo, building & label tools, drag-to-pan/zoom, nicer marker icons.
+3. **Wrap here** — treat this as the milestone and write a short README/report.
 
 ## Next step
 Owner's call on the direction above. (A build note: `apps/editor` inlines the viewer via `?raw` from

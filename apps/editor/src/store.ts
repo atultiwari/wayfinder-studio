@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { sampleProject, type Place, type Project } from "@wayfinder/schema";
+import { sampleProject, type Place, type Project, type Stall } from "@wayfinder/schema";
 
 export type Tool = "select" | "place" | "node" | "edge";
 export type Selection = { kind: "place" | "node"; id: string } | null;
@@ -48,6 +48,11 @@ interface EditorState {
   updatePlace(id: string, patch: Partial<Place>): void;
   attachToNearestNode(placeId: string): void;
   deleteSelected(): void;
+
+  addStall(placeId: string): void;
+  updateStall(id: string, patch: Partial<Stall>): void;
+  deleteStall(id: string): void;
+  setQrBaseUrl(url: string): void;
 
   setVenueImage(image: string, width: number, height: number): void;
   loadProject(project: Project): void;
@@ -147,6 +152,24 @@ export const useEditor = create<EditorState>()(
             selection: null,
           };
         }),
+
+      addStall: (placeId) =>
+        set((s) => {
+          const stalls = s.project.stalls ?? [];
+          const id = freshId("stall", stalls.map((x) => x.id));
+          const nth = stalls.filter((x) => x.placeId === placeId).length + 1;
+          const stall: Stall = { id, placeId, label: String(nth), name: "New stall" };
+          return { project: { ...s.project, stalls: [...stalls, stall] } };
+        }),
+
+      updateStall: (id, patch) =>
+        set((s) => ({ project: { ...s.project, stalls: (s.project.stalls ?? []).map((x) => (x.id === id ? { ...x, ...patch } : x)) } })),
+
+      deleteStall: (id) =>
+        set((s) => ({ project: { ...s.project, stalls: (s.project.stalls ?? []).filter((x) => x.id !== id) } })),
+
+      setQrBaseUrl: (url) =>
+        set((s) => ({ project: { ...s.project, qr: { perPlace: s.project.qr?.perPlace ?? true, baseUrl: url } } })),
 
       setVenueImage: (image, width, height) =>
         set((s) => ({ project: { ...s.project, venue: { ...s.project.venue, image, width, height } } })),

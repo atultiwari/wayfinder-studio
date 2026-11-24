@@ -1,4 +1,4 @@
-import type { Project } from "@wayfinder/schema";
+import type { Project, Stall } from "@wayfinder/schema";
 import { buildBaseSvg } from "./render";
 import { routePoints, directions, startPlace, type Step } from "./routing";
 import { createCamera, type Camera } from "./camera";
@@ -36,6 +36,17 @@ const CSS = `
 .wf-steps li{display:flex;gap:10px;align-items:flex-start;padding:7px 2px;font-size:14px;color:var(--wf-ink)}
 .wf-steps li .wf-ic{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:#eef2ff;color:var(--wf-route);font-weight:700;font-size:13px}
 .wf-steps li.arrive .wf-ic{background:#fef2f2;color:var(--wf-here)}
+.wf-directory{display:none;border:1px solid var(--wf-line);border-top:0;background:#fff;padding:6px 12px 12px}
+.wf-directory.on{display:block}
+.wf-dirhead{font-size:12.5px;font-weight:700;color:var(--wf-muted);padding:8px 2px}
+.wf-stall{display:flex;gap:10px;width:100%;text-align:left;border:0;border-top:1px solid var(--wf-line);background:none;padding:9px 4px;cursor:pointer;align-items:flex-start}
+.wf-stall .wf-stno{flex:none;min-width:30px;height:24px;padding:0 6px;display:grid;place-items:center;background:#eef2ff;color:var(--wf-route);border-radius:6px;font-weight:700;font-size:12.5px}
+.wf-stbody{display:flex;flex-direction:column;gap:2px}
+.wf-stname{font-weight:600;font-size:14px;color:var(--wf-ink)}
+.wf-sttag{font-size:12.5px;color:var(--wf-muted)}
+.wf-stdetail{display:none;font-size:12.5px;color:var(--wf-muted)}
+.wf-stall.open .wf-stdetail{display:block}
+.wf-rsub{color:var(--wf-muted);font-weight:400;font-size:12px}
 `;
 
 const GLYPH: Record<Step["kind"], string> = { start: "•", left: "←", right: "→", straight: "↑", arrive: "◉" };
@@ -62,6 +73,7 @@ function applyTheme(el: HTMLElement, project: Project): void {
 }
 
 const norm = (s: string): string => s.toLowerCase().normalize("NFKD").replace(/[^a-z0-9 ]/g, " ");
+const esc = (s: unknown): string => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
 const reduced = (): boolean => typeof matchMedia !== "undefined" && matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 export function mountViewer(root: HTMLElement, project: Project): ViewerHandle {
@@ -75,7 +87,8 @@ export function mountViewer(root: HTMLElement, project: Project): ViewerHandle {
     `<div class="wf-search"><input type="search" placeholder="Search places" aria-label="Search places"/><div class="wf-results"></div></div></div>` +
     `<div class="wf-hintbar"><span class="wf-hint"></span></div>` +
     `<div class="wf-svg"></div>` +
-    `<ol class="wf-steps"></ol>`;
+    `<ol class="wf-steps"></ol>` +
+    `<div class="wf-directory"></div>`;
   (wrap.querySelector(".wf-title") as HTMLElement).textContent = project.name;
   root.appendChild(wrap);
 
@@ -84,6 +97,9 @@ export function mountViewer(root: HTMLElement, project: Project): ViewerHandle {
   const stepsEl = wrap.querySelector(".wf-steps") as HTMLElement;
   const searchInput = wrap.querySelector(".wf-search input") as HTMLInputElement;
   const results = wrap.querySelector(".wf-results") as HTMLElement;
+  const directoryEl = wrap.querySelector(".wf-directory") as HTMLElement;
+  const stallsFor = (placeId: string): Stall[] =>
+    (project.stalls ?? []).filter((s) => s.placeId === placeId);
 
   const startId = startPlace(project)?.id ?? null;
   let here: string | null = startId;
@@ -110,6 +126,27 @@ export function mountViewer(root: HTMLElement, project: Project): ViewerHandle {
     stepsEl.classList.add("on");
   };
 
+  const renderDirectory = (placeId: string): void => {
+    const stalls = stallsFor(placeId);
+    if (stalls.length === 0) {
+      directoryEl.classList.remove("on");
+      directoryEl.innerHTML = "";
+      return;
+    }
+    directoryEl.innerHTML =
+      `<div class="wf-dirhead">${esc(placeName(placeId))} — ${stalls.length} stall${stalls.length > 1 ? "s" : ""}</div>` +
+      stalls
+        .map((s) => {
+          const detail = [s.owner ? `By ${s.owner}` : "", s.position ?? ""].filter(Boolean).map(esc).join(" · ");
+          return `<button class="wf-stall" data-stall="${esc(s.id)}">
+            <span class="wf-stno">${esc(s.label)}</span>
+            <span class="wf-stbody"><span class="wf-stname">${esc(s.name)}</span>${s.tagline ? `<span class="wf-sttag">${esc(s.tagline)}</span>` : ""}${detail ? `<span class="wf-stdetail">${detail}</span>` : ""}</span>
+          </button>`;
+        })
+        .join("");
+    directoryEl.classList.add("on");
+  };
+
   const clearRoute = (): void => {
     route?.stop();
     const rl = svgHost.querySelector("#wf-route") as SVGGElement | null;
@@ -117,6 +154,8 @@ export function mountViewer(root: HTMLElement, project: Project): ViewerHandle {
     if (rl) rl.innerHTML = "";
     if (wl) wl.innerHTML = "";
     renderSteps([]);
+    directoryEl.classList.remove("on");
+    directoryEl.innerHTML = "";
   };
 
   const defaultHint = (): void => {
@@ -137,6 +176,7 @@ export function mountViewer(root: HTMLElement, project: Project): ViewerHandle {
     const wl = svgHost.querySelector("#wf-walker") as SVGGElement;
     route?.stop();
     renderSteps(steps);
+    renderDirectory(toId);
     hint.textContent = `Walking to ${placeName(toId)}…`;
     camera?.fit(points);
     route = playRoute({ routeLayer: rl, walkerLayer: wl, points, reduced: reduced(), onArrive: () => { hint.textContent = `You’ve arrived at ${placeName(toId)}`; } });
@@ -148,10 +188,14 @@ export function mountViewer(root: HTMLElement, project: Project): ViewerHandle {
       results.classList.remove("on");
       return;
     }
-    const hits = project.places.filter((p) => norm(p.name).includes(q)).slice(0, 8);
-    results.innerHTML = hits.length
-      ? hits.map((p) => `<button data-place="${p.id}">${p.name}</button>`).join("")
-      : `<button disabled>No matches</button>`;
+    const placeHits = project.places.filter((p) => norm(p.name).includes(q)).slice(0, 6);
+    const stallHits = (project.stalls ?? []).filter((s) => norm(s.name).includes(q)).slice(0, 6);
+    const html =
+      placeHits.map((p) => `<button data-place="${esc(p.id)}">${esc(p.name)}</button>`).join("") +
+      stallHits
+        .map((s) => `<button data-place="${esc(s.placeId)}"><span class="wf-rstall">${esc(s.name)}</span> <span class="wf-rsub">in ${esc(placeName(s.placeId))}</span></button>`)
+        .join("");
+    results.innerHTML = html || `<button disabled>No matches</button>`;
     results.classList.add("on");
   };
 
@@ -173,6 +217,11 @@ export function mountViewer(root: HTMLElement, project: Project): ViewerHandle {
 
   const onClick = (e: MouseEvent): void => {
     if (!(e.target instanceof Element)) return;
+    const stallEl = e.target.closest<HTMLElement>("[data-stall]");
+    if (stallEl) {
+      stallEl.classList.toggle("open");
+      return;
+    }
     const el = e.target.closest<HTMLElement>("[data-place]");
     if (el?.dataset.place) {
       results.classList.remove("on");
