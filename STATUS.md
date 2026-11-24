@@ -3,8 +3,23 @@
 Read this first in every session (after CLAUDE.md). Updated at every checkpoint.
 
 ## Current stage
-**Editor polish DONE** (undo/redo + canvas pan/zoom) — awaiting checkpoint.
-Next: more polish (building/label tools, nicer icons) · or wrap with a README/report.
+Published to GitHub (public repo). Then: fixed a routing bug, redesigned the sample, and added a
+Pages workflow so the **editor itself** is hosted.
+
+## Latest
+- **Repo:** public at https://github.com/atultiwari/wayfinder-studio
+- **Routing bug fix:** an exported map routed in a straight line because a place (the **start**) had
+  no `nodeId`. Now the viewer **snaps any unattached place to its nearest node** (`resolveNode`/
+  `nearestNodeId` in `routing.ts`), so maps follow the graph even if the author forgot to attach;
+  straight-line only when there are no nodes at all. `lint()` now also warns when the start has no node.
+- **Sample redesigned:** the demo project is now "Green Park Fair" — a clean drawn venue (lawns,
+  walkways matching the graph, pavilions, parking/restrooms, trees, N arrow) with 5 places, a 6-node
+  graph + road names, and 5 stalls. Lint-clean. Tests updated to match (32 tests green).
+- **Editor hosting:** `apps/editor` base set to `./`; `.github/workflows/deploy-editor.yml` builds the
+  viewer lib + editor and deploys `apps/editor/dist` to GitHub Pages.
+
+## Earlier stage
+**Editor polish DONE** (undo/redo + canvas pan/zoom).
 
 ## Decisions locked
 - **Architecture A** — fully client-side; **Publish = export a self-contained `index.html`** you
