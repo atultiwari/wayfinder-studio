@@ -37,10 +37,17 @@ export function DeployDialog({ onClose }: { onClose: () => void }) {
           <b>Deploy to GitHub Pages</b>
           <button className="wf-x" onClick={onClose} aria-label="Close">×</button>
         </div>
+        <ol className="wf-guide">
+          <li>Create a GitHub repo (empty is fine).</li>
+          <li>Make a token with <b>Contents: write</b> on it —{" "}
+            <a href="https://github.com/settings/tokens?type=beta" target="_blank" rel="noreferrer">create a fine-grained token ↗</a>.</li>
+          <li>Fill the fields below and press <b>Deploy</b> (this commits <code>index.html</code> to the repo).</li>
+          <li>Turn Pages on once: repo → <b>Settings → Pages</b> → Source = your branch, folder <code>/ (root)</code>.</li>
+          <li>Your map goes live at <code>https://&lt;owner&gt;.github.io/&lt;repo&gt;/</code>.</li>
+        </ol>
         <p className="wf-muted">
-          Commits the generated map to your repo. Enable Pages once (repo → Settings → Pages → your
-          branch). Your token is used only here, in your browser, to call the GitHub API — it is never
-          stored or sent anywhere else. (Netlify/other hosts need a small proxy; GitHub works directly.)
+          Your token is used only here in your browser to call the GitHub API — never stored, logged,
+          or sent anywhere else. (Netlify/other hosts need a small proxy; GitHub works directly.)
         </p>
         <label>Repo owner<input value={owner} onChange={(e) => setOwner(e.target.value)} placeholder="your-username" autoComplete="off" /></label>
         <label>Repo name<input value={repo} onChange={(e) => setRepo(e.target.value)} placeholder="my-festival-map" autoComplete="off" /></label>

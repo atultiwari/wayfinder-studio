@@ -51,6 +51,7 @@ npm run dev -w @wayfinder/viewer
 5. **QR standees** — set your published URL and download a "you are here" QR per place.
 6. **Check** — live validation (unreachable places, missing start, …).
 7. **Publish** → download a self-contained HTML, or **Deploy** → push straight to GitHub Pages.
+   Step-by-step publishing/hosting guide: [docs/DEPLOY.md](docs/DEPLOY.md).
 
 Undo/redo (`↶ ↷`, Ctrl/Cmd+Z), wheel-zoom, and drag-to-pan are all supported.
 

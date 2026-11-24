@@ -80,6 +80,9 @@ code { background: #eef1f5; padding: 1px 4px; border-radius: 4px; font-size: 12p
 .wf-modalfoot button { border: 1px solid var(--line); background: #f8fafc; border-radius: 8px; padding: 8px 14px; font: 600 13px Inter, sans-serif; cursor: pointer; }
 .wf-modalfoot button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
 .wf-modalfoot button:disabled { opacity: .5; cursor: default; }
+.wf-guide { margin: 6px 0 10px; padding-left: 20px; color: var(--muted); font-size: 13px; line-height: 1.6; }
+.wf-guide li { margin-bottom: 3px; }
+.wf-guide a { color: var(--route); }
 .wf-err { color: #b91c1c; font-size: 13px; white-space: pre-wrap; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 8px 10px; }
 .wf-okmsg { color: #15803d; font-size: 13px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 8px 10px; word-break: break-all; }
 

@@ -12,9 +12,9 @@ describe("shortestPath", () => {
     expect(shortestPath(paths, "g", "g")).toEqual(["g"]);
   });
   it("routes between connected nodes, keeping the endpoints", () => {
-    const p = shortestPath(paths, "g", "n8");
+    const p = shortestPath(paths, "g", "k11");
     expect(p[0]).toBe("g");
-    expect(p.at(-1)).toBe("n8");
+    expect(p.at(-1)).toBe("k11");
     expect(p.length).toBeGreaterThan(2);
   });
   it("returns [] for unknown or unreachable nodes", () => {
