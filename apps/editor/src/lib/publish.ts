@@ -11,6 +11,15 @@ export interface PublishResult {
   errors?: string[];
 }
 
+/** Validate and return the self-contained HTML string (throws with readable errors if invalid). */
+export function buildHtml(project: Project): string {
+  const r = safeParseProject(project);
+  if (!r.success) {
+    throw new Error("Project invalid:\n" + r.error.issues.map((i) => `${i.path.join(".") || "project"}: ${i.message}`).join("\n"));
+  }
+  return generateHtml(r.data, viewerRuntime);
+}
+
 /** Validate, then download a self-contained HTML of the project. */
 export function publish(project: Project): PublishResult {
   const r = safeParseProject(project);

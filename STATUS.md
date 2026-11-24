@@ -3,8 +3,8 @@
 Read this first in every session (after CLAUDE.md). Updated at every checkpoint.
 
 ## Current stage
-**Stalls + QR DONE** (awaiting checkpoint). MVP + richer output + stalls/QR complete.
-Next: Stage 5 (one-click deploy) · editor polish (undo/pan-zoom/building-label tools) · or wrap.
+**One-click deploy DONE** (awaiting checkpoint). MVP + richer output + stalls/QR + deploy complete.
+Next: editor polish (undo/pan-zoom/building-label tools) · or wrap with a README/report.
 
 ## Decisions locked
 - **Architecture A** — fully client-side; **Publish = export a self-contained `index.html`** you
@@ -40,6 +40,13 @@ Next: Stage 5 (one-click deploy) · editor polish (undo/pan-zoom/building-label 
   live lint warning, "Attach to nearest" cleared it → "Ready to publish". Full workspace check green.
   (Note: `Preview`/`Publish` trigger real downloads/`window.open(blob)`; the in-app browser pane
   doesn't surface those, but the identical generator path is proven in Stage 3.)
+- **One-click deploy (Architecture B)**: `tools/deploy` (`@wayfinder/deploy`) — `deployHtmlToGitHub()`
+  commits the generated HTML to a repo via the GitHub Contents API (create/update with sha), returns
+  the Pages URL; `utf8ToBase64` is UTF-8 safe; `fetch` is injectable (5 mock-fetch tests). Editor has a
+  **Deploy** dialog (repo/branch/path + token) wired to it; the **token lives only in component state —
+  never persisted (store only persists `project`), never logged, sent only to api.github.com**. Verified
+  the dialog opens/validates in-browser (no real deploy performed). GitHub works from the browser (CORS);
+  Netlify/others would need a small proxy (noted in the dialog). 29 tests green.
 - **Stalls + QR**: editor authors stalls per place (Inspector "Stalls" section — add/edit/delete,
   wired into `project.stalls`); the viewer shows a **stall directory** per place with tap-to-expand
   detail and includes stalls in **search**; a **QR standees** panel generates a real QR per place
@@ -68,10 +75,10 @@ self-contained `index.html` that renders the map and routes between places.**
 (Stalls, QR, the animated walker, zoom, search come after the loop works.)
 
 ## Open questions for the owner (checkpoint)
-MVP + richer viewer + stalls/QR are all done. Where next?
-1. **Stage 5 — one-click deploy** (Architecture B): publish straight to Netlify/GitHub Pages → a live URL.
-2. **Editor polish** — undo/redo, building & label tools, drag-to-pan/zoom, nicer marker icons.
-3. **Wrap here** — treat this as the milestone and write a short README/report.
+MVP + richer viewer + stalls/QR + one-click deploy are all done. Where next?
+1. **Editor polish** — undo/redo, building & label tools, drag-to-pan/zoom, nicer marker icons.
+2. **Wrap here** — treat this as the milestone and write a short README/report.
+3. Something else you have in mind.
 
 ## Next step
 Owner's call on the direction above. (A build note: `apps/editor` inlines the viewer via `?raw` from

@@ -1,8 +1,9 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { parseProject } from "@wayfinder/schema";
 import { useEditor, type Tool } from "../store";
 import { loadImageFile } from "../lib/image";
 import { publish, previewUrl, exportJson } from "../lib/publish";
+import { DeployDialog } from "./DeployDialog";
 
 const TOOLS: { id: Tool; label: string }[] = [
   { id: "select", label: "Select" },
@@ -17,6 +18,7 @@ export function Toolbar() {
   const { setTool, setProjectName, setVenueImage, loadProject, loadSample, newProject } = useEditor();
   const imageInput = useRef<HTMLInputElement>(null);
   const jsonInput = useRef<HTMLInputElement>(null);
+  const [deployOpen, setDeployOpen] = useState(false);
 
   const onImage = async (e: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
     const file = e.target.files?.[0];
@@ -43,6 +45,7 @@ export function Toolbar() {
   };
 
   return (
+    <>
     <header className="wf-toolbar">
       <div className="wf-brand">Wayfinder Studio</div>
       <input className="wf-name" value={project.name} onChange={(e) => setProjectName(e.target.value)} aria-label="Project name" />
@@ -60,11 +63,14 @@ export function Toolbar() {
         <button onClick={() => jsonInput.current?.click()}>Import</button>
         <button onClick={() => exportJson(project)}>Export</button>
         <button onClick={() => window.open(previewUrl(project), "_blank")}>Preview</button>
-        <button className="primary" onClick={onPublish}>Publish</button>
+        <button onClick={onPublish}>Publish</button>
+        <button className="primary" onClick={() => setDeployOpen(true)}>Deploy</button>
       </div>
 
       <input ref={imageInput} type="file" accept="image/*" hidden onChange={onImage} />
       <input ref={jsonInput} type="file" accept="application/json,.json" hidden onChange={onJson} />
     </header>
+    {deployOpen && <DeployDialog onClose={() => setDeployOpen(false)} />}
+    </>
   );
 }

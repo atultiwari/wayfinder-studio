@@ -1,0 +1,21 @@
+{
+  "name": "@wayfinder/deploy",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Publish targets — push a generated map to a static host (GitHub Pages).",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "check": "npm run typecheck && npm run test"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3",
+    "vitest": "^2.1.8"
+  }
+}
