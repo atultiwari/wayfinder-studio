@@ -72,6 +72,22 @@ export function startPlace(project: Project): Place | null {
   return project.places.find((p) => p.role === "start") ?? null;
 }
 
+/** Nearest path-node id to a point, or null if there are no nodes. */
+export function nearestNodeId(project: Project, x: number, y: number): string | null {
+  const nodes = project.paths.nodes;
+  if (nodes.length === 0) return null;
+  let best = nodes[0];
+  for (const n of nodes) {
+    if (Math.hypot(x - n.x, y - n.y) < Math.hypot(x - best.x, y - best.y)) best = n;
+  }
+  return best.id;
+}
+
+/** A place's graph node: its explicit nodeId, else the nearest node (so unattached places still route). */
+export function resolveNode(project: Project, place: Place): string | null {
+  return place.nodeId ?? nearestNodeId(project, place.x, place.y);
+}
+
 /** Door-to-door route points from one place to another: start → via nodes → destination. */
 export function routePoints(project: Project, fromId: string, toId: string): Point[] {
   const byId = new Map(project.places.map((p) => [p.id, p] as const));
@@ -79,8 +95,10 @@ export function routePoints(project: Project, fromId: string, toId: string): Poi
   const b = byId.get(toId);
   if (!a || !b) return [];
 
-  if (a.nodeId && b.nodeId) {
-    const nodePath = shortestPath(project.paths, a.nodeId, b.nodeId);
+  const an = resolveNode(project, a);
+  const bn = resolveNode(project, b);
+  if (an && bn) {
+    const nodePath = shortestPath(project.paths, an, bn);
     if (nodePath.length) {
       const nmap = new Map(project.paths.nodes.map((n) => [n.id, n] as const));
       const mid = nodePath.map((id) => {
@@ -90,6 +108,7 @@ export function routePoints(project: Project, fromId: string, toId: string): Poi
       return dedupe([{ x: a.x, y: a.y }, ...mid, { x: b.x, y: b.y }]);
     }
   }
+  // Fallback only when there is no usable graph: a straight line between the places.
   return [{ x: a.x, y: a.y }, { x: b.x, y: b.y }];
 }
 
@@ -105,8 +124,10 @@ export function directions(project: Project, fromId: string, toId: string): Step
 
   const steps: Step[] = [{ kind: "start", text: `Start at ${a.name}` }];
 
-  if (a.nodeId && b.nodeId) {
-    const path = shortestPath(project.paths, a.nodeId, b.nodeId);
+  const an = resolveNode(project, a);
+  const bn = resolveNode(project, b);
+  if (an && bn) {
+    const path = shortestPath(project.paths, an, bn);
     const nmap = new Map(project.paths.nodes.map((n) => [n.id, n] as const));
     if (path.length >= 2) {
       const rn = roadName(path[0], path[1]);

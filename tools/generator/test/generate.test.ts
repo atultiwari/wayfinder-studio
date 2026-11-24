@@ -27,7 +27,7 @@ describe("generateHtml", () => {
   });
 
   it("uses the project name as the title, overridable", () => {
-    expect(html).toContain("<title>Sample Venue</title>");
+    expect(html).toContain("<title>Green Park Fair</title>");
     expect(generateHtml(sampleProject, RUNTIME, { title: "Custom" })).toContain("<title>Custom</title>");
   });
 });

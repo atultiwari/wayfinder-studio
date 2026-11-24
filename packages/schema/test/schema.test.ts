@@ -65,6 +65,11 @@ describe("lint (soft warnings)", () => {
     expect(lint(parseProject(noStart))).toContain("No start place is set — routing has no origin.");
   });
 
+  it("warns when the start place has no path node", () => {
+    const p = parseProject({ ...base, places: base.places.map((pl) => (pl.role === "start" ? { ...pl, nodeId: undefined } : pl)) });
+    expect(lint(p).some((w) => w.includes("Start place") && w.includes("no path node"))).toBe(true);
+  });
+
   it("warns about an unreachable destination and an isolated node", () => {
     const disconnected = {
       ...base,

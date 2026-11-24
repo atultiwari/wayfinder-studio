@@ -25,9 +25,12 @@ export function lint(project: Project): string[] {
 
   const hasPaths = paths.nodes.length > 0;
   if (hasPaths) {
+    if (start && !start.nodeId) {
+      warnings.push(`Start place "${start.name}" has no path node — it will snap to the nearest; attach it to be exact.`);
+    }
     for (const p of places) {
       if (p.role === "destination" && !p.nodeId) {
-        warnings.push(`Place "${p.name}" has no path node, so it can't be routed to.`);
+        warnings.push(`Place "${p.name}" has no path node — it will snap to the nearest; attach it to be exact.`);
       }
     }
 
@@ -41,11 +44,13 @@ export function lint(project: Project): string[] {
       if (!touched.has(n.id)) warnings.push(`Path node "${n.id}" is isolated (no edges).`);
     }
 
-    // Reachability from the start's node.
-    if (start?.nodeId) {
-      const reachable = reachableFrom(start.nodeId, paths.edges);
+    // Reachability from the start's node (its explicit node, else the nearest).
+    const startNode = start ? (start.nodeId ?? nearestNodeId(paths.nodes, start.x, start.y)) : null;
+    if (startNode) {
+      const reachable = reachableFrom(startNode, paths.edges);
       for (const p of places) {
-        if (p.role === "destination" && p.nodeId && !reachable.has(p.nodeId)) {
+        const node = p.nodeId ?? nearestNodeId(paths.nodes, p.x, p.y);
+        if (p.role === "destination" && node && !reachable.has(node)) {
           warnings.push(`Place "${p.name}" is not reachable from the start.`);
         }
       }
@@ -53,6 +58,13 @@ export function lint(project: Project): string[] {
   }
 
   return warnings;
+}
+
+function nearestNodeId(nodes: Project["paths"]["nodes"], x: number, y: number): string | null {
+  if (nodes.length === 0) return null;
+  let best = nodes[0];
+  for (const n of nodes) if (Math.hypot(x - n.x, y - n.y) < Math.hypot(x - best.x, y - best.y)) best = n;
+  return best.id;
 }
 
 function reachableFrom(startNode: string, edges: ReadonlyArray<readonly [string, string]>): Set<string> {
