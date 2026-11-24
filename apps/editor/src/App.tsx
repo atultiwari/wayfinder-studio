@@ -8,18 +8,33 @@ import { QrPanel } from "./components/QrPanel";
 
 export function App() {
   const deleteSelected = useEditor((s) => s.deleteSelected);
+  const undo = useEditor((s) => s.undo);
+  const redo = useEditor((s) => s.redo);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent): void => {
       const tag = (e.target as HTMLElement | null)?.tagName;
-      if ((e.key === "Delete" || e.key === "Backspace") && tag !== "INPUT" && tag !== "SELECT" && tag !== "TEXTAREA") {
+      const typing = tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA";
+      const mod = e.metaKey || e.ctrlKey;
+      if (mod && e.key.toLowerCase() === "z") {
+        e.preventDefault();
+        if (e.shiftKey) redo();
+        else undo();
+        return;
+      }
+      if (mod && e.key.toLowerCase() === "y") {
+        e.preventDefault();
+        redo();
+        return;
+      }
+      if ((e.key === "Delete" || e.key === "Backspace") && !typing) {
         e.preventDefault();
         deleteSelected();
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [deleteSelected]);
+  }, [deleteSelected, undo, redo]);
 
   return (
     <div className="wf-app">

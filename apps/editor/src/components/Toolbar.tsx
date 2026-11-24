@@ -15,7 +15,9 @@ const TOOLS: { id: Tool; label: string }[] = [
 export function Toolbar() {
   const tool = useEditor((s) => s.tool);
   const project = useEditor((s) => s.project);
-  const { setTool, setProjectName, setVenueImage, loadProject, loadSample, newProject } = useEditor();
+  const canUndo = useEditor((s) => s.history.past.length > 0);
+  const canRedo = useEditor((s) => s.history.future.length > 0);
+  const { setTool, setProjectName, setVenueImage, loadProject, loadSample, newProject, undo, redo } = useEditor();
   const imageInput = useRef<HTMLInputElement>(null);
   const jsonInput = useRef<HTMLInputElement>(null);
   const [deployOpen, setDeployOpen] = useState(false);
@@ -54,6 +56,11 @@ export function Toolbar() {
         {TOOLS.map((t) => (
           <button key={t.id} className={tool === t.id ? "on" : ""} onClick={() => setTool(t.id)}>{t.label}</button>
         ))}
+      </div>
+
+      <div className="wf-tools">
+        <button disabled={!canUndo} onClick={undo} title="Undo (Ctrl/Cmd+Z)" aria-label="Undo">↶</button>
+        <button disabled={!canRedo} onClick={redo} title="Redo (Ctrl/Cmd+Shift+Z)" aria-label="Redo">↷</button>
       </div>
 
       <div className="wf-actions">

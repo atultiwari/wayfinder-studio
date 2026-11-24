@@ -24,7 +24,11 @@ body { font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-se
 
 .wf-main { flex: 1; display: grid; grid-template-columns: 1fr 320px; min-height: 0; }
 
-.wf-canvas { overflow: auto; background: #e9edf3; padding: 16px; }
+.wf-canvas { position: relative; overflow: auto; background: #e9edf3; padding: 16px; }
+.wf-zoom { position: absolute; right: 24px; top: 24px; display: flex; flex-direction: column; gap: 4px; z-index: 2; }
+.wf-zoom button { width: 32px; height: 32px; border: 1px solid var(--line); background: #fff; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; box-shadow: 0 2px 6px rgba(15,23,42,.12); }
+.wf-zoom button:hover { background: #f2f4f8; }
+.wf-canvas svg { touch-action: none; }
 .wf-canvas svg { width: 100%; height: auto; display: block; background: #fff; border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 10px 30px rgba(15,23,42,.08); }
 .wf-canvas svg.tool-place, .wf-canvas svg.tool-node { cursor: crosshair; }
 .wf-canvas svg.tool-edge { cursor: pointer; }

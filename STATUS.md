@@ -3,8 +3,8 @@
 Read this first in every session (after CLAUDE.md). Updated at every checkpoint.
 
 ## Current stage
-**One-click deploy DONE** (awaiting checkpoint). MVP + richer output + stalls/QR + deploy complete.
-Next: editor polish (undo/pan-zoom/building-label tools) · or wrap with a README/report.
+**Editor polish DONE** (undo/redo + canvas pan/zoom) — awaiting checkpoint.
+Next: more polish (building/label tools, nicer icons) · or wrap with a README/report.
 
 ## Decisions locked
 - **Architecture A** — fully client-side; **Publish = export a self-contained `index.html`** you
@@ -40,6 +40,12 @@ Next: editor polish (undo/pan-zoom/building-label tools) · or wrap with a READM
   live lint warning, "Attach to nearest" cleared it → "Ready to publish". Full workspace check green.
   (Note: `Preview`/`Publish` trigger real downloads/`window.open(blob)`; the in-app browser pane
   doesn't surface those, but the identical generator path is proven in Stage 3.)
+- **Editor polish**: **undo/redo** — a `history` (past/future) in the store with coalescing (rapid
+  same-field typing and a whole drag collapse into one step), toolbar ↶/↷ buttons + Ctrl/Cmd+Z /
+  Shift+Z / Ctrl+Y; history is not persisted (store persists only `project`). **Canvas pan/zoom** —
+  wheel-zoom toward the cursor, +/−/fit controls, and drag-empty-space to pan (click-without-move
+  still deselects), via a local SVG `viewBox`. Verified in-browser (add→undo→redo = 4→3→4; zoom
+  narrowed the viewBox). 29 tests green.
 - **One-click deploy (Architecture B)**: `tools/deploy` (`@wayfinder/deploy`) — `deployHtmlToGitHub()`
   commits the generated HTML to a repo via the GitHub Contents API (create/update with sha), returns
   the Pages URL; `utf8ToBase64` is UTF-8 safe; `fetch` is injectable (5 mock-fetch tests). Editor has a
@@ -75,9 +81,9 @@ self-contained `index.html` that renders the map and routes between places.**
 (Stalls, QR, the animated walker, zoom, search come after the loop works.)
 
 ## Open questions for the owner (checkpoint)
-MVP + richer viewer + stalls/QR + one-click deploy are all done. Where next?
-1. **Editor polish** — undo/redo, building & label tools, drag-to-pan/zoom, nicer marker icons.
-2. **Wrap here** — treat this as the milestone and write a short README/report.
+Everything's in: MVP + richer viewer + stalls/QR + deploy + undo-redo/pan-zoom. Where next?
+1. **More polish** — building & label tools (schema + viewer already support them), nicer marker icons.
+2. **Wrap here** — write a short README/report and call it the milestone.
 3. Something else you have in mind.
 
 ## Next step
